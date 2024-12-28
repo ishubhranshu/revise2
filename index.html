@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Dynamic Link Cards</title>
+  <style>
+    body {
+      background-color: #121212;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #fff;
+    }
+
+    .card {
+      background-color: #222222;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      width: 20vw;
+      height: 15vh;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .card:hover {
+      background-color: #333333;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div id="cardsContainer"></div>
+
+  <script>
+    const googleSheetCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTch9H4ghnGJEc0V3X3ir2IHQI6ej0IBMdvkXOxFhi22MIZSpfCXgFD2HfoYdi8kigH2GmnOTNSI-ur/pub?gid=0&single=true&output=csv';
+
+    // Indices for different cards
+    const indices = {
+      'n-1': -1,
+      'n-15': -15,
+      'n-30': -30,
+      'n-60': -60
+    };
+
+    // Fetch CSV data
+    function fetchSheetData() {
+      fetch(googleSheetCSV)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.text();
+        })
+        .then(csvData => {
+          parseAndRenderCards(csvData);
+        })
+        .catch(err => {
+          console.error('Error fetching or parsing CSV:', err);
+        });
+    }
+
+    // Parse CSV data and render cards
+    function parseAndRenderCards(csvData) {
+      const lines = csvData.trim().split('\n');
+      const header = lines.shift();
+
+      if (!header.toLowerCase().includes('links')) {
+        throw new Error('CSV does not contain a "links" column.');
+      }
+
+      // Process each row
+      lines.forEach((line, rowIndex) => {
+        const links = line.split(',').map(link => link.trim()).filter(link => link);
+
+        // Generate cards for available indices
+        Object.entries(indices).forEach(([label, offset]) => {
+          const index = links.length + offset;
+
+          if (index >= 0 && index < links.length) {
+            const link = links[index];
+            createCard(label, link);
+          }
+        });
+      });
+    }
+
+    // Create and append a card
+    function createCard(label, link) {
+      const cardsContainer = document.getElementById('cardsContainer');
+
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.textContent = `${label}: ${link}`;
+      card.title = link;
+
+      // Open link in a new tab on click
+      card.addEventListener('click', () => {
+        window.open(link, '_blank');
+      });
+
+      cardsContainer.appendChild(card);
+    }
+
+    // Fetch and render on page load
+    window.addEventListener('load', fetchSheetData);
+  </script>
+</body>
+</html>
