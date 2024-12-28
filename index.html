@@ -43,8 +43,18 @@
       text-align: center;
     }
 
-    .card-link {
+    .link-item {
+      margin: 10px 0;
+    }
+
+    .link-title {
       font-size: 16px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .card-link {
+      font-size: 14px;
       margin: 5px 0;
       word-break: break-word;
       text-decoration: underline;
@@ -112,6 +122,16 @@
       renderCards(cardsData);
     }
 
+    // Extract the title from the link
+    function extractTitle(link) {
+      try {
+        const parts = link.split('/');
+        return parts[parts.length - 1] || 'Untitled';
+      } catch {
+        return 'Untitled';
+      }
+    }
+
     // Render cards dynamically
     function renderCards(cardsData) {
       const cardsContainer = document.getElementById('cardsContainer');
@@ -129,6 +149,18 @@
           card.appendChild(cardTitle);
 
           links.forEach(link => {
+            const linkContainer = document.createElement('div');
+            linkContainer.className = 'link-item';
+
+            // Extract title from the link
+            const title = extractTitle(link);
+
+            // Add title
+            const linkTitleEl = document.createElement('div');
+            linkTitleEl.className = 'link-title';
+            linkTitleEl.textContent = title;
+
+            // Add link
             const linkEl = document.createElement('div');
             linkEl.className = 'card-link';
             linkEl.textContent = link;
@@ -139,7 +171,9 @@
               window.open(link, '_blank');
             });
 
-            card.appendChild(linkEl);
+            linkContainer.appendChild(linkTitleEl);
+            linkContainer.appendChild(linkEl);
+            card.appendChild(linkContainer);
           });
 
           cardsContainer.appendChild(card);
