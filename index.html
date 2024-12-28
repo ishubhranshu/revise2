@@ -122,11 +122,12 @@
       renderCards(cardsData);
     }
 
-    // Extract the title from the link
+    // Extract the title from the third-to-last part of the link
     function extractTitle(link) {
       try {
         const parts = link.split('/');
-        return parts[parts.length - 1] || 'Untitled';
+        // Check if the third-to-last part exists
+        return parts.length >= 3 ? parts[parts.length - 3] : 'Untitled';
       } catch {
         return 'Untitled';
       }
@@ -152,7 +153,7 @@
             const linkContainer = document.createElement('div');
             linkContainer.className = 'link-item';
 
-            // Extract title from the link
+            // Extract title from the third-to-last part of the link
             const title = extractTitle(link);
 
             // Add title
