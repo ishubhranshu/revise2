@@ -70,14 +70,8 @@
 
     // Parse CSV data and render cards
     function parseAndRenderCards(csvData) {
-      const lines = csvData.trim().split('\n');
-      const header = lines.shift();
+      const lines = csvData.trim().split('\n'); // Split rows into lines
 
-      if (!header.toLowerCase().includes('links')) {
-        throw new Error('CSV does not contain a "links" column.');
-      }
-
-      // Process each row
       lines.forEach((line, rowIndex) => {
         const links = line.split(',').map(link => link.trim()).filter(link => link);
 
