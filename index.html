@@ -7,28 +7,27 @@
     body {
       background-color: #121212;
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
       color: #fff;
+      overflow-y: auto;
     }
 
     .card {
       background-color: #222222;
       border-radius: 12px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-      width: 25vw;
-      height: auto;
+      width: 90%; /* Card width set to 90% of the screen */
       margin: 10px;
-      padding: 10px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
       text-align: left;
-      cursor: pointer;
       transition: transform 0.2s, background-color 0.3s;
     }
 
@@ -38,18 +37,23 @@
     }
 
     .card-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       text-align: center;
     }
 
     .card-link {
-      font-size: 14px;
+      font-size: 16px;
       margin: 5px 0;
       word-break: break-word;
       text-decoration: underline;
+      color: #1e90ff;
       cursor: pointer;
+    }
+
+    .card-link:hover {
+      color: #ffffff;
     }
   </style>
 </head>
@@ -59,8 +63,8 @@
   <script>
     const googleSheetCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTch9H4ghnGJEc0V3X3ir2IHQI6ej0IBMdvkXOxFhi22MIZSpfCXgFD2HfoYdi8kigH2GmnOTNSI-ur/pub?gid=0&single=true&output=csv';
 
-    // Indices for different cards
-    const indices = {
+    // Row offsets for different cards
+    const offsets = {
       'n-1': -1,
       'n-15': -15,
       'n-30': -30,
@@ -87,24 +91,21 @@
     // Parse CSV data and render cards
     function parseAndRenderCards(csvData) {
       const lines = csvData.trim().split('\n'); // Split rows into lines
+      const totalLines = lines.length;
+
       const cardsData = {};
 
-      // Initialize cardsData for each index
-      Object.keys(indices).forEach(key => {
-        cardsData[key] = [];
-      });
+      // Process only lines for offsets n-1, n-15, n-30, n-60
+      Object.entries(offsets).forEach(([label, offset]) => {
+        const targetIndex = totalLines + offset;
 
-      // Process each line
-      lines.forEach(line => {
-        const links = line.split(',').map(link => link.trim()).filter(link => link);
-
-        // Assign links to their respective cards based on indices
-        Object.entries(indices).forEach(([label, offset]) => {
-          const index = links.length + offset;
-          if (index >= 0 && index < links.length) {
-            cardsData[label].push(links[index]);
-          }
-        });
+        // Skip if targetIndex is out of range
+        if (targetIndex >= 0 && targetIndex < totalLines) {
+          const links = lines[targetIndex].split(',').map(link => link.trim()).filter(link => link);
+          cardsData[label] = links;
+        } else {
+          cardsData[label] = []; // No links if index is out of range
+        }
       });
 
       // Render cards with the collected data
