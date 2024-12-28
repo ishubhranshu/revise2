@@ -122,15 +122,13 @@
       renderCards(cardsData);
     }
 
-    // Extract the title from the third-to-last part of the link
+    // Extract the name between "problems/" and the next "/" and remove hyphens
     function extractTitle(link) {
-      try {
-        const parts = link.split('/');
-        // Check if the third-to-last part exists
-        return parts.length >= 3 ? parts[parts.length - 3] : 'Untitled';
-      } catch {
-        return 'Untitled';
+      const match = link.match(/problems\/([^\/]*)/);
+      if (match) {
+        return match[1].replace(/-/g, ' '); // Replace hyphens with spaces
       }
+      return 'Untitled';
     }
 
     // Render cards dynamically
@@ -153,7 +151,7 @@
             const linkContainer = document.createElement('div');
             linkContainer.className = 'link-item';
 
-            // Extract title from the third-to-last part of the link
+            // Extract title from the link
             const title = extractTitle(link);
 
             // Add title
