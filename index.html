@@ -20,13 +20,14 @@
       background-color: #222222;
       border-radius: 12px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-      width: 20vw;
-      height: 15vh;
+      width: 25vw;
+      height: auto;
       margin: 10px;
+      padding: 10px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+      flex-direction: column;
+      justify-content: flex-start;
+      text-align: left;
       cursor: pointer;
       transition: transform 0.2s, background-color 0.3s;
     }
@@ -34,6 +35,21 @@
     .card:hover {
       background-color: #333333;
       transform: scale(1.05);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .card-link {
+      font-size: 14px;
+      margin: 5px 0;
+      word-break: break-word;
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -71,37 +87,63 @@
     // Parse CSV data and render cards
     function parseAndRenderCards(csvData) {
       const lines = csvData.trim().split('\n'); // Split rows into lines
+      const cardsData = {};
 
-      lines.forEach((line, rowIndex) => {
+      // Initialize cardsData for each index
+      Object.keys(indices).forEach(key => {
+        cardsData[key] = [];
+      });
+
+      // Process each line
+      lines.forEach(line => {
         const links = line.split(',').map(link => link.trim()).filter(link => link);
 
-        // Generate cards for available indices
+        // Assign links to their respective cards based on indices
         Object.entries(indices).forEach(([label, offset]) => {
           const index = links.length + offset;
-
           if (index >= 0 && index < links.length) {
-            const link = links[index];
-            createCard(label, link);
+            cardsData[label].push(links[index]);
           }
         });
       });
+
+      // Render cards with the collected data
+      renderCards(cardsData);
     }
 
-    // Create and append a card
-    function createCard(label, link) {
+    // Render cards dynamically
+    function renderCards(cardsData) {
       const cardsContainer = document.getElementById('cardsContainer');
+      cardsContainer.innerHTML = ''; // Clear existing cards
 
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.textContent = `${label}: ${link}`;
-      card.title = link;
+      Object.entries(cardsData).forEach(([label, links]) => {
+        if (links.length > 0) {
+          const card = document.createElement('div');
+          card.className = 'card';
 
-      // Open link in a new tab on click
-      card.addEventListener('click', () => {
-        window.open(link, '_blank');
+          const cardTitle = document.createElement('div');
+          cardTitle.className = 'card-title';
+          cardTitle.textContent = label;
+
+          card.appendChild(cardTitle);
+
+          links.forEach(link => {
+            const linkEl = document.createElement('div');
+            linkEl.className = 'card-link';
+            linkEl.textContent = link;
+            linkEl.title = link;
+
+            // Open link in a new tab on click
+            linkEl.addEventListener('click', () => {
+              window.open(link, '_blank');
+            });
+
+            card.appendChild(linkEl);
+          });
+
+          cardsContainer.appendChild(card);
+        }
       });
-
-      cardsContainer.appendChild(card);
     }
 
     // Fetch and render on page load
